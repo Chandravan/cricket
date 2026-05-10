@@ -528,7 +528,7 @@ export default function Home() {
 
     const normalizedEmail = authEmail.trim().toLowerCase();
     if (isAdminEmail(normalizedEmail) && authPassword !== ADMIN_PASSWORD) {
-      setError("Admin password fixed hai. Admin login ke liye password 123456 use karo.");
+      setError("Admin credentials invalid hain. Please organizer se verify karo.");
       return;
     }
 

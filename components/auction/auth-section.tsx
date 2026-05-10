@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { ADMIN_EMAIL, ADMIN_PASSWORD, INITIAL_CAPTAIN_PURSE, MIN_BID_INCREMENT } from "@/lib/auction/constants";
+import { INITIAL_CAPTAIN_PURSE, MIN_BID_INCREMENT } from "@/lib/auction/constants";
 import { formatCredits } from "@/lib/auction/utils";
 
 type AuthSectionProps = {
@@ -73,7 +73,7 @@ export function AuthSection({
         </button>
 
         <p className="rounded-xl border border-amber-200/30 bg-amber-500/15 px-3 py-2 text-xs text-amber-100">
-          Reserved admin login: {ADMIN_EMAIL} | password: {ADMIN_PASSWORD}
+          Admin access organizer dwara managed hai.
         </p>
       </form>
 
