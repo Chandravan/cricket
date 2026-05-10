@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function myUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdminIdentity() {
+      return signedIn() && request.auth.token.email == "chandravankumar5145@gmail.com";
+    }
+
+    function amCaptain() {
+      return signedIn() && myUserDoc().role == "captain";
+    }
+
+    function amPlayer() {
+      return signedIn() && myUserDoc().role == "player";
+    }
+
+    function amAdmin() {
+      return isAdminIdentity() && myUserDoc().role == "admin";
+    }
+
+    function biddingOpen() {
+      return !exists(/databases/$(database)/documents/settings/auction)
+        ? true
+        : get(/databases/$(database)/documents/settings/auction).data.biddingOpen == true;
+    }
+
+    function selfRoleAllowed() {
+      return isAdminIdentity()
+        ? request.resource.data.role == "admin"
+        : request.resource.data.role == "player" || request.resource.data.role == "captain";
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid) && request.resource.data.uid == request.auth.uid && selfRoleAllowed();
+      allow update: if (isSelf(uid) && selfRoleAllowed()) || amAdmin();
+      allow delete: if false;
+    }
+
+    match /players/{playerId} {
+      allow read: if signedIn();
+      allow create: if isSelf(playerId);
+      allow update: if signedIn() && (
+        (amPlayer() && isSelf(playerId)) ||
+        (amCaptain() && biddingOpen()) ||
+        amAdmin()
+      );
+      allow delete: if false;
+    }
+
+    match /events/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if false;
+    }
+
+    match /settings/{settingId} {
+      allow read: if signedIn();
+      allow create, update: if amAdmin();
+      allow delete: if false;
+    }
+  }
+}
